@@ -688,6 +688,8 @@ require('lazy').setup({
       -- See `:help cmp`
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
+      local lspkind = require 'lspkind'
+
       luasnip.config.setup {}
 
       cmp.setup {
@@ -741,6 +743,12 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
+        },
+        formatting = {
+          format = lspkind.cmp_format {
+            maxwidth = 50,
+            ellipsis_char = '...',
+          },
         },
       }
     end,
