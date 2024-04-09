@@ -561,8 +561,16 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+      local cmp_nvim_lsp = require 'cmp_nvim_lsp'
       local servers = {
-        -- clangd = {},
+        clangd = {
+          on_attach = on_attach,
+          capabilities = cmp_nvim_lsp.default_capabilities(),
+          cmd = {
+            'clangd',
+            '--offset-encoding=utf-16',
+          },
+        },
         gopls = {},
         -- pyright = {},
         rust_analyzer = {},
@@ -682,7 +690,7 @@ require('lazy').setup({
       --    you can use this plugin to help you. It even has snippets
       --    for various frameworks/libraries/etc. but you will have to
       --    set up the ones that are useful for you.
-      -- 'rafamadriz/friendly-snippets',
+      'rafamadriz/friendly-snippets',
     },
     config = function()
       -- See `:help cmp`
