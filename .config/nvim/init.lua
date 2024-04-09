@@ -114,6 +114,7 @@ vim.opt.showmode = false
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.opt.clipboard = 'unnamedplus'
+vim.opt.termguicolors = true
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -194,6 +195,21 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- buffer navigation
+vim.api.nvim_set_keymap('n', '<C-u>', '<C-u>zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '{', '{zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '}', '}zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'N', 'Nzz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'n', 'nzz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'G', 'Gzz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'gg', 'ggzz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-i>', '<C-i>zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-o>', '<C-o>zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '%', '%zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '*', '*zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '#', '#zz', { noremap = true, silent = true })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 vim.api.nvim_set_keymap('n', '<leader>ww', ':lua SaveBuffer()<CR>', { noremap = true, silent = true })
@@ -215,7 +231,12 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Open parent directory' })
+vim.api.nvim_set_keymap('n', '<leader>oi', "<cmd>lua require('oil').open_float()<CR>", { noremap = true, silent = true })
+
 -- [[ Install `lazy.nvim` plugin manager ]]
+--
+--
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -251,19 +272,6 @@ require('lazy').setup({
   -- "gc" to comment visual regions/lines
 
   -- add this to your lua/plugins.lua, lua/plugins/init.lua,  or the file you keep your other plugins:
-  {
-    'numToStr/Comment.nvim',
-    dependencies = 'JoosepAlviste/nvim-ts-context-commentstring',
-    config = function()
-      require('Comment').setup {
-        pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
-      }
-    end,
-    opts = {
-      -- add any options here
-    },
-    lazy = false,
-  },
   -- options to `gitsigns.nvim`. This is equivalent to the following lua:
   --    require('gitsigns').setup({ ... })
   --
@@ -679,17 +687,10 @@ require('lazy').setup({
         end)(),
       },
       'saadparwaiz1/cmp_luasnip',
-
-      -- Adds other completion capabilities.
-      --  nvim-cmp does not ship with all sources by default. They are split
-      --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-path',
-
-      -- If you want to add a bunch of pre-configured snippets,
-      --    you can use this plugin to help you. It even has snippets
-      --    for various frameworks/libraries/etc. but you will have to
-      --    set up the ones that are useful for you.
+      'onsails/lspkind.nvim',
       'rafamadriz/friendly-snippets',
     },
     config = function()
@@ -715,7 +716,6 @@ require('lazy').setup({
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
           ['<C-n>'] = cmp.mapping.select_next_item(),
-          -- Select the [p]revious item
           ['<C-p>'] = cmp.mapping.select_prev_item(),
 
           -- Accept ([y]es) the completion.
@@ -747,16 +747,44 @@ require('lazy').setup({
             end
           end, { 'i', 's' }),
         },
-        sources = {
+        sources = cmp.config.sources {
           { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
+          { name = 'buffer', max_item_count = 5 },
+          { name = 'path', max_item_count = 3 },
+          { name = 'luasnip', max_item_count = 3 },
         },
-        formatting = {
-          format = lspkind.cmp_format {
-            maxwidth = 50,
-            ellipsis_char = '...',
+        window = {
+          completion = cmp.config.window.bordered {
+            col_offset = -3,
+            side_padding = 0,
+            winhighlight = 'Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None',
           },
+          documentation = cmp.config.window.bordered {
+            winhighlight = 'Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None',
+          },
+        },
+
+        formatting = {
+          expandable_indicator = true,
+          fields = { 'kind', 'abbr', 'menu' },
+          format = function(entry, vim_item)
+            local kind = lspkind.cmp_format {
+              mode = 'symbol_text',
+              maxwidth = 50,
+            }(entry, vim_item)
+            local strings = vim.split(kind.kind, '%s', { trimempty = true })
+            kind.kind = ' ' .. strings[1] .. ' '
+            kind.menu = '    (' .. strings[2] .. ')'
+
+            return kind
+          end,
+        },
+        view = {
+          entries = { name = 'custom', selection_order = 'near_cursor' },
+        },
+
+        experimental = {
+          ghost_text = true,
         },
       }
     end,
@@ -844,6 +872,7 @@ require('lazy').setup({
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   { import = 'custom.plugins' },
 }, {
+
   ui = {
     -- If you have a Nerd Font, set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons otherwise define a unicode icons table
