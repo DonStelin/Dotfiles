@@ -1,5 +1,3 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 source $(brew --prefix nvm)/nvm.sh
 
 # Fig post block. Keep at the bottom of this file.
@@ -42,15 +40,10 @@ zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
 
-
 # snippets
 zinit snippet OMZP::git
 zinit snippet OMZP::sudo
-zinit snippet OMZP::archlinux
-zinit snippet OMZP::aws
-zinit snippet OMZP::kubectl
-zinit snippet OMZP::kubectx
-zinit snippet OMZP::command-not-found
+zinit snippet OMZP::yarn
 
 
 # Load completions
@@ -85,8 +78,9 @@ zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
+
 # Aliases
-alias ls='ls --color'
+alias l="eza -l --icons --git -a"
 alias vim='nvim'
 alias c='clear'
 
@@ -111,8 +105,12 @@ alias cd="z";
 alias undopush="git push -f origin HEAD^:master"
 alias main="git switch main"
 alias push="git push"
+alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
+alias gdiff="git diff"
+
 alias zshconfig="nvim ~/.zshrc"
 alias wth="curl wttr.in"
+alias cat=bat
 
 
 #dotfiles
@@ -127,3 +125,4 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
 eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
