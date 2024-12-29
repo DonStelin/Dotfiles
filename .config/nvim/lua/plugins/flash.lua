@@ -44,4 +44,14 @@ return {
       desc = 'Toggle Flash Search',
     },
   },
+
+  config = function()
+    require('flash').setup {
+      modes = {
+        char = {
+          enabled = false,
+        },
+      },
+    }
+  end,
 }
