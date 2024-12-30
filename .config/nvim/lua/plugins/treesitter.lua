@@ -21,7 +21,6 @@ return {
           'tsx',
           'jsdoc',
         },
-
         auto_install = true,
         highlight = {
           enable = true,
