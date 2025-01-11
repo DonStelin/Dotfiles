@@ -65,8 +65,8 @@ preset = 'qwerty'
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-inner.horizontal = 40
-inner.vertical =   40
+inner.horizontal = 30
+inner.vertical =   30
 outer.left =       80
 outer.bottom =     20
 outer.top =        20
@@ -174,3 +174,18 @@ alt-w = ['exec-and-forget open -a /Applications/WezTerm.app', 'mode main']
 if.app-id = 'org.mozilla.firefox'
 if.window-title-regex-substring = 'Picture-in-Picture'
 run = 'layout floating'
+
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+if.window-title-regex-substring = 'Picture in Picture'
+run = 'layout floating'
+check-further-callbacks = true
+
+
+
+[[on-window-detected]]
+if.app-id = 'zoom.us.app'
+if.window-title-regex-substring = 'Picture in Picture'
+run = 'layout floating'
+check-further-callbacks = true
